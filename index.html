@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Partypress — Coming soon</title>
+  <title>PARTYPRESS 2.0 – coming soon</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;1,9..40,400&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet">
@@ -16,19 +16,103 @@
 
   <main>
     <section class="hero">
-      <h1>Partypress</h1>
-      <p class="tagline">Something good is on the way.</p>
-      <p class="sub">This is a draft. We’re building something here — check back soon.</p>
+      <h1>PARTYPRESS 2.0</h1>
+      <p class="tagline">Coming soon.</p>
+      <p class="sub">A large-scale, cross-national corpus of party press releases—with LLM-assisted tools to explore who responds to whom, and a public web app for researchers, journalists, and citizens.</p>
     </section>
 
-    <section class="cta">
-      <p>Interested? Drop us a line.</p>
-      <a href="mailto:hello@partypress.org" class="button">hello@partypress.org</a>
+    <section class="coming">
+      <h2>What’s coming</h2>
+      <ul>
+        <li><strong>~30 countries, 2010–2025</strong> — Standardized, multilingual corpus of party press releases from major parties across the EU, UK, Norway, and Switzerland.</li>
+        <li><strong>Inter-party responsiveness</strong> — Validated LLM-assisted methods to detect who responds to whom, on what issue, and with what stance.</li>
+        <li><strong>Open by design</strong> — Data, code, and documentation under open licenses; replication and extension in mind.</li>
+        <li><strong>Web application</strong> — Explore the dataset, visualize party communication patterns, and run custom analyses without coding.</li>
+      </ul>
+    </section>
+
+    <section class="foundation">
+      <h2>PARTYPRESS 1.0</h2>
+      <p class="foundation-intro">PARTYPRESS 2.0 builds on the <strong>PARTYPRESS Database</strong> and related work:</p>
+      <div class="paper-card">
+        <h3 class="paper-title"><a href="https://journals.sagepub.com/doi/10.1177/20531680231183512">The PARTYPRESS Database</a></h3>
+        <p class="paper-authors"><a href="https://corneliuserfort.de/">Cornelius Erfort</a>, <a href="http://lukas-stoetzer.org/">Lukas F. Stoetzer</a>, and <a href="http://heike-kluever.com/">Heike Klüver</a></p>
+        <p class="paper-venue">Research and Politics, 2023</p>
+        <p class="paper-desc">Large-scale collection of party press releases from European parties—the basis for studying agenda-setting and responsiveness.</p>
+        <div class="paper-links">
+          <a class="paper-link-btn" href="https://journals.sagepub.com/doi/10.1177/20531680231183512" target="_blank" rel="noopener">Article</a>
+          <a class="paper-link-btn" href="https://github.com/cornelius-erfort/partypress" target="_blank" rel="noopener">GitHub</a>
+          <a class="paper-link-btn" href="https://doi.org/10.7910/DVN/OINX7Q" target="_blank" rel="noopener">Dataverse</a>
+          <a class="paper-link-btn" href="https://huggingface.co/partypress/partypress-multilingual" target="_blank" rel="noopener">Hugging Face</a>
+        </div>
+        <div class="bibtex-wrap">
+          <button type="button" class="bibtex-toggle" aria-expanded="false" data-bibtex="erfort_stoetzer_kluver_2023">BibTeX</button>
+          <div id="bibtex-erfort_stoetzer_kluver_2023" class="bibtex-block" hidden>
+            <pre class="bibtex-code">@article{erfort_stoetzer_kluver_2023,
+  author = {Erfort, Cornelius and Stoetzer, Lukas F. and Kl{\"u}ver, Heike},
+  title = {The {PARTYPRESS} Database},
+  journal = {Research and Politics},
+  year = {2023},
+  volume = {10},
+  number = {3},
+  doi = {10.1177/20531680231183512},
+  url = {https://doi.org/10.1177/20531680231183512}
+}</pre>
+            <button type="button" class="bibtex-copy">Copy</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="team">
+      <h2>Team</h2>
+      <div class="team-grid">
+        <div class="team-member">
+          <a href="https://z-dickson.github.io/" class="team-photo-link">
+            <img src="img/dickson.jpeg" alt="Zachary P. Dickson" class="team-photo" width="120" height="120">
+          </a>
+          <div class="team-content">
+            <div class="team-meta">
+              <h3 class="team-name"><a href="https://z-dickson.github.io/">Zachary P. Dickson</a></h3>
+              <p class="team-role">London School of Economics · <a href="https://z-dickson.github.io/" class="team-website">Website</a></p>
+            </div>
+            <p class="team-bio">Postdoctoral Fellow in Quantitative Methods at LSE. His research focuses on how distributional conflicts over resources and policy shape political behaviour, with work on right-wing populism, environmental policy, and LLM-based text analysis.</p>
+          </div>
+        </div>
+        <div class="team-member">
+          <a href="https://corneliuserfort.de/" class="team-photo-link">
+            <img src="img/erfort.jpeg" alt="Cornelius Erfort" class="team-photo" width="120" height="120">
+          </a>
+          <div class="team-content">
+            <div class="team-meta">
+              <h3 class="team-name"><a href="https://corneliuserfort.de/">Cornelius Erfort</a></h3>
+              <p class="team-role">Witten/Herdecke University · <a href="https://corneliuserfort.de/" class="team-website">Website</a></p>
+            </div>
+            <p class="team-bio">Postdoctoral researcher in computational social science and comparative politics. He developed the PARTYPRESS Database and builds data-driven tools for election research and political communication.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="supported">
+      <h2>With support from</h2>
+      <div class="supported-logos">
+        <a href="https://www.lse.ac.uk/" class="supported-logo" aria-label="London School of Economics">
+          <img src="img/lse.png" alt="LSE" width="120" height="60">
+        </a>
+        <a href="https://gepris.dfg.de/gepris/projekt/529544178?language=en" class="supported-logo" aria-label="Deutsche Forschungsgemeinschaft"> 
+          <img src="img/logo_dfg.gif" alt="DFG" width="120" height="60">
+        </a>
+        <a href="https://www.uni-wh.de/" class="supported-logo" aria-label="Universität Witten/Herdecke">
+          <img src="img/logo_witten.svg" alt="Universität Witten/Herdecke" width="120" height="60">
+        </a>
+      </div>
     </section>
   </main>
 
   <footer class="site-footer">
     <p>&copy; 2025 Partypress. All rights reserved.</p>
   </footer>
+  <script src="script.js"></script>
 </body>
 </html>
