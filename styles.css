@@ -397,6 +397,20 @@ h2 {
   opacity: 1;
 }
 
+@media (max-width: 400px) {
+  .supported-logos {
+    gap: 1rem;
+  }
+
+  .supported-logo {
+    width: 72px;
+  }
+
+  .supported-logo img {
+    max-height: 44px;
+  }
+}
+
 .site-footer {
   padding: 1.5rem 2rem;
   border-top: 1px solid var(--border);
