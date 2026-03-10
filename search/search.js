@@ -1,11 +1,10 @@
 /**
  * PARTYPRESS Browse & Search
- *
- * Uses https://api.partypress.org in production, http://localhost:8073 for local dev.
+ * API URL from data-api-url on body, or ?local=1 for localhost:8073
  */
-const SEARCH_API = (typeof location !== 'undefined' && /localhost|127\.0\.0\.1|^file:/.test(location.origin))
+const SEARCH_API = (typeof location !== 'undefined' && location.search.includes('local=1'))
   ? 'http://localhost:8073'
-  : 'https://api.partypress.org';
+  : (document.body && document.body.dataset && document.body.dataset.apiUrl) || 'https://api.partypress.org';
 
 const DOWNLOAD_MAX = 1000;
 const ALL_COLUMNS = ['date', 'country', 'party', 'party_family', 'CAP_issue1', 'title', 'text', 'url', 'date_collected', 'parlgov_party_id'];
