@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Browse & Search — PARTYPRESS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;1,9..40,400&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="search.css">
+</head>
+<body>
+  <header class="site-header">
+    <a href="/" class="logo">partypress<span class="tld">.org</span></a>
+  </header>
+
+  <main class="search-main">
+    <section class="search-hero">
+      <h1>Browse & search press releases</h1>
+      <p class="search-sub">~500k party press releases across 30 countries. Filter, search, and download.</p>
+
+      <form class="search-form" id="search-form" role="search">
+        <input type="search" name="q" id="search-input" placeholder="Search all columns…" autocomplete="off">
+        <select id="filter-country" aria-label="Country">
+          <option value="">All countries</option>
+        </select>
+        <select id="filter-party" aria-label="Party">
+          <option value="">All parties</option>
+        </select>
+        <select id="filter-party-family" aria-label="Party family">
+          <option value="">All party families</option>
+        </select>
+        <select id="filter-issue" aria-label="CAP issue">
+          <option value="">All issues</option>
+        </select>
+        <input type="date" id="filter-date-from" aria-label="Date from">
+        <input type="date" id="filter-date-to" aria-label="Date to">
+        <button type="submit">Apply</button>
+      </form>
+
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <label>Show
+            <select id="page-size">
+              <option value="10">10</option>
+              <option value="25" selected>25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+              <option value="500">500</option>
+            </select>
+            per page
+          </label>
+          <label>Sort by
+            <select id="sort-by">
+              <option value="date" selected>Date</option>
+              <option value="country">Country</option>
+              <option value="party">Party</option>
+              <option value="party_family">Party family</option>
+              <option value="CAP_issue1">Issue</option>
+              <option value="title">Title</option>
+            </select>
+            <select id="sort-dir">
+              <option value="desc" selected>Descending</option>
+              <option value="asc">Ascending</option>
+            </select>
+          </label>
+          <label class="optional-cols">
+            <input type="checkbox" id="show-date-collected"> Date collected
+          </label>
+          <label class="optional-cols">
+            <input type="checkbox" id="show-url"> URL
+          </label>
+        </div>
+        <div class="toolbar-right">
+          <button type="button" id="download-btn" class="paper-link-btn">Download CSV (max 1,000)</button>
+        </div>
+      </div>
+
+      <p id="api-status" class="api-status"></p>
+    </section>
+
+    <section class="search-results" id="results-section">
+      <p id="results-summary" class="results-summary"></p>
+      <div class="table-wrap">
+        <table class="results-table" id="results-table">
+          <thead>
+            <tr>
+              <th>Country</th>
+              <th>Date</th>
+              <th>Party</th>
+              <th data-col="party_family">Party family</th>
+              <th data-col="CAP_issue1">Issue</th>
+              <th>Title</th>
+              <th></th>
+              <th class="opt-col" data-col="date_collected">Date collected</th>
+              <th class="opt-col" data-col="url">URL</th>
+            </tr>
+          </thead>
+          <tbody id="results-body"></tbody>
+        </table>
+      </div>
+      <div id="pagination" class="pagination"></div>
+    </section>
+  </main>
+
+  <!-- Download modal -->
+  <div id="download-modal" class="modal" hidden>
+    <div class="modal-content">
+      <h3>Download CSV</h3>
+      <p>Select columns to include. Maximum 1,000 rows. For larger exports, use the <a href="#" id="api-docs-link" target="_blank" rel="noopener">API</a>.</p>
+      <div class="download-cols" id="download-cols"></div>
+      <div class="modal-actions">
+        <button type="button" id="download-cancel" class="paper-link-btn">Cancel</button>
+        <button type="button" id="download-confirm" class="paper-link-btn">Download</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Text expand overlay -->
+  <div id="text-overlay" class="text-overlay" hidden>
+    <div class="text-overlay-content">
+      <button type="button" id="text-overlay-close" aria-label="Close">&times;</button>
+      <h4 id="text-overlay-title"></h4>
+      <p id="text-overlay-meta"></p>
+      <div id="text-overlay-body" class="text-overlay-body"></div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <p><a href="/">← Back to partypress.org</a> · <a href="/api/" id="api-docs-page-link">API</a></p>
+  </footer>
+
+  <script src="search.js"></script>
+</body>
+</html>
