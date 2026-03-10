@@ -1,11 +1,11 @@
 /**
  * PARTYPRESS Browse & Search
  *
- * Uses https://api.partypress.org in production (nginx reverse proxy), http://localhost:8073 for local dev.
+ * Uses https://api.partypress.org in production, http://localhost:8073 for local dev.
  */
-const SEARCH_API = (typeof location !== 'undefined' && /^https:\/\/partypress\.org/.test(location.origin))
-  ? 'https://api.partypress.org'
-  : 'http://localhost:8073';
+const SEARCH_API = (typeof location !== 'undefined' && /localhost|127\.0\.0\.1|^file:/.test(location.origin))
+  ? 'http://localhost:8073'
+  : 'https://api.partypress.org';
 
 const DOWNLOAD_MAX = 1000;
 const ALL_COLUMNS = ['date', 'country', 'party', 'party_family', 'CAP_issue1', 'title', 'text', 'url', 'date_collected', 'parlgov_party_id'];
