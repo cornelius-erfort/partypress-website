@@ -7,14 +7,13 @@ const SEARCH_API = (typeof location !== 'undefined' && location.search.includes(
   : (document.body && document.body.dataset && document.body.dataset.apiUrl) || 'https://api.partypress.org';
 
 const DOWNLOAD_MAX = 1000;
-const ALL_COLUMNS = ['date', 'country', 'party', 'party_family', 'CAP_issue1', 'title', 'text', 'url', 'date_collected', 'parlgov_party_id'];
+const ALL_COLUMNS = ['date', 'country', 'party', 'CAP_issue1', 'title', 'text', 'url', 'date_collected', 'parlgov_party_id'];
 
 // Elements
 const form = document.getElementById('search-form');
 const searchInput = document.getElementById('search-input');
 const countrySelect = document.getElementById('filter-country');
 const partySelect = document.getElementById('filter-party');
-const partyFamilySelect = document.getElementById('filter-party-family');
 const issueSelect = document.getElementById('filter-issue');
 const dateFromInput = document.getElementById('filter-date-from');
 const dateToInput = document.getElementById('filter-date-to');
@@ -65,7 +64,6 @@ fetch(SEARCH_API + '/filters')
   .then(data => {
     data.countries?.forEach(c => addOption(countrySelect, c, c));
     data.parties?.slice(0, 300).forEach(p => addOption(partySelect, p, p));
-    data.party_families?.forEach(pf => addOption(partyFamilySelect, pf, pf));
     data.issues?.forEach(i => addOption(issueSelect, i, i));
   })
   .catch(() => {});
@@ -88,7 +86,6 @@ function getParams() {
   if (q) params.q = q;
   if (countrySelect.value) params.country = countrySelect.value;
   if (partySelect.value) params.party = partySelect.value;
-  if (partyFamilySelect.value) params.party_family = partyFamilySelect.value;
   if (issueSelect.value) params.issue = issueSelect.value;
   if (dateFromInput.value) params.date_from = dateFromInput.value;
   if (dateToInput.value) params.date_to = dateToInput.value;
@@ -97,13 +94,13 @@ function getParams() {
 
 function fetchList() {
   const params = new URLSearchParams(getParams());
-  resultsBody.innerHTML = '<tr><td colspan="9">Loading…</td></tr>';
+  resultsBody.innerHTML = '<tr><td colspan="8">Loading…</td></tr>';
 
   fetch(SEARCH_API + '/list?' + params)
     .then(r => r.json())
     .then(data => {
       if (data.error) {
-        resultsBody.innerHTML = `<tr><td colspan="9" class="api-status error">${escapeHtml(data.error)}</td></tr>`;
+        resultsBody.innerHTML = `<tr><td colspan="8" class="api-status error">${escapeHtml(data.error)}</td></tr>`;
         resultsSummary.textContent = '';
         return;
       }
@@ -113,7 +110,7 @@ function fetchList() {
       resultsSummary.textContent = `${data.total.toLocaleString()} result${data.total !== 1 ? 's' : ''}${searchInput.value.trim() ? ` for "${escapeHtml(searchInput.value.trim())}"` : ''}`;
 
       if (data.results.length === 0) {
-        resultsBody.innerHTML = '<tr><td colspan="9">No results.</td></tr>';
+        resultsBody.innerHTML = '<tr><td colspan="8">No results.</td></tr>';
       } else {
         resultsBody.innerHTML = data.results.map((r, i) => rowHtml(r, i)).join('');
         attachExpandHandlers();
@@ -122,7 +119,7 @@ function fetchList() {
       renderPagination(data.total, data.limit, data.offset);
     })
     .catch(err => {
-      resultsBody.innerHTML = `<tr><td colspan="9" class="api-status error">${escapeHtml(err.message)}</td></tr>`;
+      resultsBody.innerHTML = `<tr><td colspan="8" class="api-status error">${escapeHtml(err.message)}</td></tr>`;
       resultsSummary.textContent = '';
     });
 }
@@ -138,7 +135,6 @@ function rowHtml(r, index) {
     <td>${escapeHtml(r.country || '')}</td>
     <td>${escapeHtml(r.date || '')}</td>
     <td>${escapeHtml(r.party || '')}</td>
-    <td data-col="party_family">${escapeHtml(r.party_family || '')}</td>
     <td data-col="CAP_issue1">${escapeHtml(r.CAP_issue1 || '')}</td>
     <td class="title-cell">${titleLink}${snippet}</td>
     <td><button type="button" class="expand-btn">Show text</button></td>
@@ -225,7 +221,6 @@ downloadConfirm.addEventListener('click', () => {
   if (searchInput.value.trim()) p.q = searchInput.value.trim();
   if (countrySelect.value) p.country = countrySelect.value;
   if (partySelect.value) p.party = partySelect.value;
-  if (partyFamilySelect.value) p.party_family = partyFamilySelect.value;
   if (issueSelect.value) p.issue = issueSelect.value;
   if (dateFromInput.value) p.date_from = dateFromInput.value;
   if (dateToInput.value) p.date_to = dateToInput.value;
