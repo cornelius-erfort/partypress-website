@@ -6,6 +6,16 @@
   padding: 2rem;
 }
 
+.beta-notice {
+  font-size: 0.85rem;
+  color: var(--muted);
+  background: rgba(0, 0, 0, 0.04);
+  padding: 0.4rem 0.7rem;
+  border-radius: 4px;
+  margin: 0 0 1rem;
+  display: inline-block;
+}
+
 .search-hero h1 {
   font-family: var(--font-display);
   font-size: 1.5rem;
