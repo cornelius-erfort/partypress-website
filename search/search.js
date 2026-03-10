@@ -1,10 +1,10 @@
 /**
  * PARTYPRESS Browse & Search
  *
- * Uses polsci.uni-wh.de:8073 in production (port forwarding), http://localhost:8073 for local dev.
+ * Uses https://api.partypress.org in production (nginx reverse proxy), http://localhost:8073 for local dev.
  */
 const SEARCH_API = (typeof location !== 'undefined' && /^https:\/\/partypress\.org/.test(location.origin))
-  ? 'http://polsci.uni-wh.de:8073'
+  ? 'https://api.partypress.org'
   : 'http://localhost:8073';
 
 const DOWNLOAD_MAX = 1000;
