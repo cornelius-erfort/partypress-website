@@ -12,11 +12,23 @@
 .hero-map {
   flex: 1 1 50%;
   min-width: 280px;
+  overflow: hidden;
 }
 
 .hero-issues {
   flex: 1 1 50%;
   min-width: 280px;
+}
+
+@media (min-width: 640px) {
+  .hero-map-and-issues {
+    flex-wrap: nowrap;
+  }
+  .hero-map,
+  .hero-issues {
+    flex: 0 0 calc(50% - 0.625rem); /* half minus half of gap */
+    max-width: calc(50% - 0.625rem);
+  }
 }
 
 .hero-issues-title {
