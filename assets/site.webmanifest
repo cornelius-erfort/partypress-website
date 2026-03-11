@@ -1,0 +1,9 @@
+{
+  "name": "Party Press",
+  "short_name": "Party Press",
+  "description": "Political party press releases — collection, cleaning, and CAP classification",
+  "icons": [
+    { "src": "favicon-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "favicon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
