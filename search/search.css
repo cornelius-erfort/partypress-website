@@ -1,23 +1,28 @@
 /* Search page — extends main styles */
 
-/* Hero: map 50% + issue tiles 50% on wide screens, stack on narrow */
+/* Hero: map 50% + issue tiles 50% on wide screens, stack on narrow; equal column height */
 .hero-map-and-issues {
   display: flex;
   flex-wrap: wrap;
   gap: 1.25rem;
   margin-bottom: 1.25rem;
-  align-items: flex-start;
+  align-items: stretch;
 }
 
 .hero-map {
   flex: 1 1 50%;
   min-width: 280px;
-  overflow: hidden;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .hero-issues {
   flex: 1 1 50%;
   min-width: 280px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 @media (min-width: 640px) {
@@ -29,13 +34,6 @@
     flex: 0 0 calc(50% - 0.625rem); /* half minus half of gap */
     max-width: calc(50% - 0.625rem);
   }
-}
-
-.hero-issues-title {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--muted);
-  margin: 0 0 0.5rem;
 }
 
 .issue-tiles {
@@ -80,8 +78,13 @@
   line-height: 1;
 }
 
-/* Country map */
+/* Country map: box matches column height; map contents centered, not stretched */
 .country-map-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--border);
   border-radius: 8px;
   overflow: hidden;
