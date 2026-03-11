@@ -138,7 +138,7 @@ function rowHtml(r, index) {
   const title = r.title || '(No title)';
   const titleSafe = escapeHtmlAllowMark(title);
   const titleLink = r.url
-    ? `<a href="${escapeHtml(r.url)}" target="_blank" rel="noopener">${titleSafe}</a>`
+    ? `<a class="title-link" href="${escapeHtml(r.url)}" target="_blank" rel="noopener">${titleSafe}</a>`
     : titleSafe;
   const snippet = r.search_snippet ? `<div class="search-snippet">${escapeHtmlAllowMark(r.search_snippet)}</div>` : '';
   const urlCell = r.url ? `<a href="${escapeHtml(r.url)}" target="_blank" rel="noopener">Link</a>` : '—';
@@ -199,7 +199,11 @@ function escapeHtmlAllowMark(s) {
   if (!s) return '';
   const div = document.createElement('div');
   div.textContent = s;
-  return div.innerHTML.replace(/&lt;\/?mark&gt;/gi, (m) => m.toLowerCase() === '&lt;mark&gt;' ? '<mark>' : '</mark>');
+  let out = div.innerHTML;
+  // Restore <mark> and </mark> so they render as tags (handle both &lt; and &amp;lt; from API)
+  out = out.replace(/&amp;lt;mark&amp;gt;/gi, '<mark>').replace(/&amp;lt;\/mark&amp;gt;/gi, '</mark>');
+  out = out.replace(/&lt;mark&gt;/gi, '<mark>').replace(/&lt;\/mark&gt;/gi, '</mark>');
+  return out;
 }
 
 function toggleOptionalCols() {
