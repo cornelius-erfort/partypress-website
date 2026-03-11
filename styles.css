@@ -39,6 +39,7 @@ body {
   border-bottom: 1px solid var(--border);
 }
 
+/* Header logo link: no underline, looks like text/brand */
 .logo {
   font-weight: 600;
   font-size: 1rem;
@@ -46,14 +47,51 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  text-decoration: none;
+  color: var(--text);
+}
+.logo:hover,
+.logo:focus {
+  text-decoration: none;
+  color: var(--text);
 }
 .logo-img {
-  height: 1.75rem;
+  height: 2.25rem;
   width: auto;
   vertical-align: middle;
+  display: block;
+}
+.logo .tld {
+  color: var(--muted);
+  font-weight: 400;
 }
 
-.logo .tld {
+/* Stacked logo for content (e.g. hero): logo on top, partypress.org below */
+.logo-stacked {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: var(--text);
+  margin: 0 auto;
+}
+.logo-stacked:hover,
+.logo-stacked:focus {
+  text-decoration: none;
+  color: var(--text);
+}
+.logo-stacked .logo-stacked-img {
+  height: 4rem;
+  width: auto;
+  display: block;
+}
+.logo-stacked .logo-stacked-text {
+  font-weight: 600;
+  font-size: 1.1rem;
+  letter-spacing: 0.02em;
+}
+.logo-stacked .logo-stacked-text .tld {
   color: var(--muted);
   font-weight: 400;
 }
