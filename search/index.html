@@ -23,10 +23,18 @@
       <h1>Browse & search press releases</h1>
       <p class="search-sub">~500k party press releases across 30 countries. Filter, search, and download.</p>
 
-      <div class="country-map-wrap" id="country-map-wrap" aria-label="Map of countries in sample. Click to filter by country.">
-        <div class="country-map-inner">
-          <div id="country-map-svg-container"></div>
-          <div id="country-map-tooltip" class="country-map-tooltip" role="tooltip" aria-hidden="true"></div>
+      <div class="hero-map-and-issues">
+        <div class="hero-map" id="hero-map">
+          <div class="country-map-wrap" id="country-map-wrap" aria-label="Map of countries in sample. Click to filter by country.">
+            <div class="country-map-inner">
+              <div id="country-map-svg-container"></div>
+              <div id="country-map-tooltip" class="country-map-tooltip" role="tooltip" aria-hidden="true"></div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-issues" id="hero-issues">
+          <p class="hero-issues-title">Filter by issue</p>
+          <div class="issue-tiles" id="issue-tiles" aria-label="CAP policy issues. Click to filter."></div>
         </div>
       </div>
 
@@ -161,7 +169,33 @@ let currentOffset = 0, currentTotal = 0, currentResults = [];
 let allPartyOptions = [], fallbackParties = [];
 const TOKEN_KEY = 'partypress_api_token';
 const MAP_NAME_TO_API = { 'Republic of Moldova':'Moldova', 'The former Yugoslav Republic of Macedonia':'North Macedonia', 'United Kingdom':'UK' };
+const ISSUE_SYMBOLS = { 'Macroeconomics':'📈','Civil Rights':'⚖️','Health':'🏥','Agriculture':'🌾','Labor':'👷','Education':'📚','Environment':'🌍','Energy':'⚡','Immigration':'🛂','Transportation':'🚄','Law and Crime':'🔒','Social Welfare':'🤝','Housing':'🏘️','Domestic Commerce':'💼','Defense':'🛡️','Technology':'💻','Foreign Trade':'📦','International Affairs':'🌐','Government Operations':'🏛️','Public Lands':'🏞️','Culture':'🎭' };
 let _europeSvgText = null, _apiCountries = null, _countryMapInited = false;
+function initIssueTiles(issues){
+  const container=document.getElementById('issue-tiles');
+  if(!container)return;
+  container.innerHTML='';
+  (issues||[]).forEach(issue=>{
+    const sym=ISSUE_SYMBOLS[issue]||'📋';
+    const tile=document.createElement('button');
+    tile.type='button';
+    tile.className='issue-tile';
+    tile.dataset.issue=issue;
+    tile.setAttribute('aria-pressed','false');
+    tile.innerHTML='<span class="issue-tile-symbol" aria-hidden="true">'+escapeHtml(sym)+'</span><span>'+escapeHtml(issue)+'</span>';
+    tile.onclick=()=>{
+      const cur=issueSelect.value;
+      issueSelect.value=cur===issue?'':issue;
+      triggerSearch();updateIssueTilesSelection();
+    };
+    container.appendChild(tile);
+  });
+  updateIssueTilesSelection();
+}
+function updateIssueTilesSelection(){
+  const sel=issueSelect.value;
+  document.querySelectorAll('.issue-tile').forEach(t=>{const on=t.dataset.issue===sel;t.classList.toggle('selected',on);t.setAttribute('aria-pressed',on?'true':'false');});
+}
 function tryInitCountryMap(){if(!_europeSvgText||!_apiCountries||_countryMapInited)return;_countryMapInited=true;initCountryMap(_apiCountries);}
 function initCountryMap(countries){
   const set = new Set(countries||[]);
@@ -197,12 +231,12 @@ function initCountryMap(countries){
 function getToken(){return (tokenInput&&tokenInput.value.trim())||localStorage.getItem(TOKEN_KEY)||'';}
 function saveToken(){const t=getToken();if(t)localStorage.setItem(TOKEN_KEY,t);}
 function urlWithToken(url){const t=getToken();return t?(url+(url.includes('?')?'&':'?')+'token='+encodeURIComponent(t)):url;}
-function refetchFilters(){fetch(urlWithToken(SEARCH_API + '/filters')).then(r=>{if(r.status===401)return;return r.json();}).then(data=>{if(data){countrySelect.querySelectorAll('option:not(:first-child)').forEach(o=>o.remove());data.countries?.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;countrySelect.appendChild(o);});if(data.party_options&&data.party_options.length){allPartyOptions=data.party_options;populatePartyDropdown();}else{fallbackParties=data.parties?.slice(0,300)||[];populatePartyDropdown();}issueSelect.querySelectorAll('option:not(:first-child)').forEach(o=>o.remove());data.issues?.forEach(i=>{const o=document.createElement('option');o.value=i;o.textContent=i;issueSelect.appendChild(o);});_apiCountries=data.countries||[];if(_countryMapInited)initCountryMap(_apiCountries);else tryInitCountryMap();}});}
+function refetchFilters(){fetch(urlWithToken(SEARCH_API + '/filters')).then(r=>{if(r.status===401)return;return r.json();}).then(data=>{if(data){countrySelect.querySelectorAll('option:not(:first-child)').forEach(o=>o.remove());data.countries?.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;countrySelect.appendChild(o);});if(data.party_options&&data.party_options.length){allPartyOptions=data.party_options;populatePartyDropdown();}else{fallbackParties=data.parties?.slice(0,300)||[];populatePartyDropdown();}issueSelect.querySelectorAll('option:not(:first-child)').forEach(o=>o.remove());data.issues?.forEach(i=>{const o=document.createElement('option');o.value=i;o.textContent=i;issueSelect.appendChild(o);});_apiCountries=data.countries||[];if(_countryMapInited)initCountryMap(_apiCountries);else tryInitCountryMap();initIssueTiles(data.issues||[]);}});}
 if(tokenInput){const saved=localStorage.getItem(TOKEN_KEY);if(saved)tokenInput.value=saved;tokenInput.onchange=tokenInput.oninput=()=>{saveToken();refetchFilters();};}
 function populatePartyDropdown(){const prevVal=partySelect.value;partySelect.innerHTML='<option value="">All parties</option>';const country=countrySelect.value;if(allPartyOptions.length){const opts=country?allPartyOptions.filter(o=>o.country===country):allPartyOptions;opts.forEach(({country:c,party:p})=>{const o=document.createElement('option');o.value=c+'|'+p;o.textContent=c+': '+p;partySelect.appendChild(o);});if(prevVal&&opts.some(o=>(o.country+'|'+o.party)===prevVal))partySelect.value=prevVal;}else{fallbackParties.forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;partySelect.appendChild(o);});if(prevVal&&fallbackParties.includes(prevVal))partySelect.value=prevVal;}}
 fetch(urlWithToken(SEARCH_API + '/health')).then(r=>{if(r.status===401){apiStatus.textContent='Enter API token above';apiStatus.classList.add('error');return null;}return r.json();}).then(d=>{if(d){apiStatus.textContent = d.status==='ok' ? (d.total_releases?.toLocaleString()??'?')+' press releases indexed' : 'API unavailable';apiStatus.classList.remove('error');}}).catch(()=>{apiStatus.textContent = 'API unavailable';apiStatus.classList.add('error');});
 fetch('europe.svg').then(r=>r.text()).then(t=>{_europeSvgText=t;tryInitCountryMap();}).catch(()=>{});
-fetch(urlWithToken(SEARCH_API + '/filters')).then(r=>{if(r.status===401)return null;return r.json();}).then(data=>{if(!data)return;data.countries?.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;countrySelect.appendChild(o);});if(data.party_options&&data.party_options.length){allPartyOptions=data.party_options;populatePartyDropdown();}else{fallbackParties=data.parties?.slice(0,300)||[];populatePartyDropdown();}data.issues?.forEach(i=>{const o=document.createElement('option');o.value=i;o.textContent=i;issueSelect.appendChild(o);});_apiCountries=data.countries||[];tryInitCountryMap();}).catch(()=>{});
+fetch(urlWithToken(SEARCH_API + '/filters')).then(r=>{if(r.status===401)return null;return r.json();}).then(data=>{if(!data)return;data.countries?.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;countrySelect.appendChild(o);});if(data.party_options&&data.party_options.length){allPartyOptions=data.party_options;populatePartyDropdown();}else{fallbackParties=data.parties?.slice(0,300)||[];populatePartyDropdown();}data.issues?.forEach(i=>{const o=document.createElement('option');o.value=i;o.textContent=i;issueSelect.appendChild(o);});_apiCountries=data.countries||[];tryInitCountryMap();initIssueTiles(data.issues||[]);}).catch(()=>{});
 function addOption(s,v,t){const o=document.createElement('option');o.value=v;o.textContent=t;s.appendChild(o);}
 function getParams(){const p={limit:parseInt(pageSizeSelect.value,10),offset:currentOffset,sort_by:sortBySelect.value,sort_dir:sortDirSelect.value};if(searchInput.value.trim()){p.q=searchInput.value.trim();p.include_total='false';}if(partySelect.value&&partySelect.value.includes('|')){const parts=partySelect.value.split('|');if(parts.length>=2){p.country=parts[0];p.party=parts.slice(1).join('|');}}else{if(countrySelect.value)p.country=countrySelect.value;if(partySelect.value)p.party=partySelect.value;}if(issueSelect.value)p.issue=issueSelect.value;if(dateFromInput.value)p.date_from=dateFromInput.value;if(dateToInput.value)p.date_to=dateToInput.value;return p;}
 function escapeHtml(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
@@ -210,6 +244,7 @@ function rowHtml(r,i){const t=r.title||'(No title)';const tl=r.url?'<a href="'+e
 function fetchList(){if(!getToken()){resultsBody.innerHTML='<tr><td colspan="8" class="api-status error">Enter API token above to search</td></tr>';resultsSummary.textContent='';return;}const params=new URLSearchParams(getParams());resultsBody.innerHTML='<tr><td colspan="8">Loading…</td></tr>';fetch(urlWithToken(SEARCH_API+'/list?'+params)).then(r=>{if(r.status===401){resultsBody.innerHTML='<tr><td colspan="8" class="api-status error">Invalid or missing token</td></tr>';resultsSummary.textContent='';return null;}return r.json();}).then(data=>{if(!data)return;if(data.error){resultsBody.innerHTML='<tr><td colspan="8" class="api-status error">'+escapeHtml(data.error)+'</td></tr>';resultsSummary.textContent='';return;}currentTotal=data.total;currentResults=data.results;const totalStr=data.total!=null?data.total.toLocaleString()+' result'+(data.total!==1?'s':'')+(searchInput.value.trim()?' for "'+escapeHtml(searchInput.value.trim())+'"':'')+(data.total_capped?' (showing first 10,000 matches)':''):data.results.length+' result'+(data.results.length!==1?'s':'')+(searchInput.value.trim()?' for "'+escapeHtml(searchInput.value.trim())+'"':'')+' (showing page)';resultsSummary.textContent=totalStr;if(data.results.length===0)resultsBody.innerHTML='<tr><td colspan="8">No results.</td></tr>';else{resultsBody.innerHTML=data.results.map((r,i)=>rowHtml(r,i)).join('');resultsBody.querySelectorAll('.expand-btn').forEach(btn=>{btn.onclick=()=>{const row=btn.closest('tr');const idx=parseInt(row.dataset.rowIndex,10);const r=currentResults[idx];if(!r)return;textOverlayTitle.textContent=r.title||'(No title)';textOverlayMeta.textContent=[r.country,r.date,r.party].filter(Boolean).join(' · ');textOverlayBody.textContent=r.text||'(No content)';textOverlay.hidden=false;};});}const hasTotal=data.total!=null;const pages=hasTotal?Math.ceil(data.total/data.limit):null;const cp=Math.floor(data.offset/data.limit)+1;const nextDisabled=hasTotal?data.offset+data.limit>=data.total:!data.next;paginationEl.innerHTML='<button type="button" id="page-prev" '+(data.offset===0?'disabled':'')+'>Previous</button><span class="page-info">Page '+cp+(pages!=null?' of '+pages:'')+' '+(hasTotal?'('+data.total.toLocaleString()+' total)':'')+'</span><button type="button" id="page-next" '+(nextDisabled?'disabled':'')+'>Next</button>';paginationEl.querySelector('#page-prev')?.addEventListener('click',()=>{currentOffset=Math.max(0,data.offset-data.limit);fetchList();});paginationEl.querySelector('#page-next')?.addEventListener('click',()=>{currentOffset=data.offset+data.limit;fetchList();});}).catch(err=>{resultsBody.innerHTML='<tr><td colspan="8" class="api-status error">'+escapeHtml(err.message)+'</td></tr>';resultsSummary.textContent='';});}
 function triggerSearch(){currentOffset=0;fetchList();}
 countrySelect.onchange=()=>{populatePartyDropdown();if(window.updateMapSelection)window.updateMapSelection();};
+issueSelect.onchange=()=>{updateIssueTilesSelection();};
 form.onsubmit=e=>{e.preventDefault();triggerSearch();};
 pageSizeSelect.onchange=()=>{currentOffset=0;fetchList();};
 sortBySelect.onchange=fetchList;sortDirSelect.onchange=fetchList;
