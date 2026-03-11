@@ -126,7 +126,7 @@
 (function(){
 const SEARCH_API = (typeof location !== 'undefined' && location.search.includes('local=1')) ? 'http://localhost:8073' : (document.body && document.body.dataset && document.body.dataset.apiUrl) || 'https://api.partypress.org';
 const DOWNLOAD_MAX = 1000;
-const ALL_COLUMNS = ['date', 'country', 'party', 'CAP_issue1', 'title', 'text', 'url', 'parlgov_party_id'];
+const ALL_COLUMNS = ['date', 'country', 'party', 'CAP_issue1', 'title', 'text', 'parlgov_party_id'];
 const form = document.getElementById('search-form');
 const tokenInput = document.getElementById('api-token');
 const searchInput = document.getElementById('search-input');

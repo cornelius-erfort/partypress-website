@@ -7,7 +7,7 @@ const SEARCH_API = (typeof location !== 'undefined' && location.search.includes(
   : (document.body && document.body.dataset && document.body.dataset.apiUrl) || 'https://api.partypress.org';
 
 const DOWNLOAD_MAX = 1000;
-const ALL_COLUMNS = ['date', 'country', 'party', 'CAP_issue1', 'title', 'text', 'url', 'date_collected', 'parlgov_party_id'];
+const ALL_COLUMNS = ['date', 'country', 'party', 'CAP_issue1', 'title', 'text', 'parlgov_party_id'];
 
 // Elements
 const form = document.getElementById('search-form');
