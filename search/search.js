@@ -42,8 +42,19 @@ let currentOffset = 0;
 let currentTotal = 0;
 let currentResults = [];  // Store for expand (full text)
 
+function getToken() {
+  const el = document.getElementById('api-token');
+  return (el && el.value && el.value.trim()) ? el.value.trim() : '';
+}
+function appendToken(url) {
+  const t = getToken();
+  if (!t) return url;
+  const sep = url.includes('?') ? '&' : '?';
+  return url + sep + 'token=' + encodeURIComponent(t);
+}
+
 // Health check
-fetch(SEARCH_API + '/health')
+fetch(appendToken(SEARCH_API + '/health'))
   .then(r => r.json())
   .then(d => {
     if (d.status === 'ok') {
@@ -57,16 +68,6 @@ fetch(SEARCH_API + '/health')
     apiStatus.textContent = 'API unavailable (check SEARCH_API in search.js)';
     apiStatus.classList.add('error');
   });
-
-// Load filters
-fetch(SEARCH_API + '/filters')
-  .then(r => r.json())
-  .then(data => {
-    data.countries?.forEach(c => addOption(countrySelect, c, c));
-    data.parties?.slice(0, 300).forEach(p => addOption(partySelect, p, p));
-    data.issues?.forEach(i => addOption(issueSelect, i, i));
-  })
-  .catch(() => {});
 
 function addOption(select, value, text) {
   const opt = document.createElement('option');
@@ -96,8 +97,15 @@ function fetchList() {
   const params = new URLSearchParams(getParams());
   resultsBody.innerHTML = '<tr><td colspan="8">Loading…</td></tr>';
 
-  fetch(SEARCH_API + '/list?' + params)
-    .then(r => r.json())
+  // Use /search for text queries (skips total count, faster). Use /list for browse.
+  const hasQuery = searchInput.value.trim().length > 0;
+  const endpoint = hasQuery ? '/search' : '/list';
+  const url = appendToken(SEARCH_API + endpoint + '?' + params);
+  const ctrl = new AbortController();
+  const timeout = setTimeout(() => ctrl.abort(), hasQuery ? 90000 : 30000);  // 90s for search, 30s for list
+
+  fetch(url, { signal: ctrl.signal })
+    .then(r => { clearTimeout(timeout); return r.json(); })
     .then(data => {
       if (data.error) {
         resultsBody.innerHTML = `<tr><td colspan="8" class="api-status error">${escapeHtml(data.error)}</td></tr>`;
@@ -105,7 +113,7 @@ function fetchList() {
         return;
       }
 
-      currentTotal = data.total;
+      currentTotal = data.total != null ? data.total : (data.next ? currentOffset + data.results.length + 1 : currentOffset + (data.results ? data.results.length : 0));
       currentResults = data.results;
       resultsSummary.textContent = `${data.total.toLocaleString()} result${data.total !== 1 ? 's' : ''}${searchInput.value.trim() ? ` for "${escapeHtml(searchInput.value.trim())}"` : ''}`;
 
@@ -119,17 +127,20 @@ function fetchList() {
       renderPagination(data.total, data.limit, data.offset);
     })
     .catch(err => {
-      resultsBody.innerHTML = `<tr><td colspan="8" class="api-status error">${escapeHtml(err.message)}</td></tr>`;
+      clearTimeout(timeout);
+      const msg = err.name === 'AbortError' ? 'Request timed out. Try a shorter search or fewer filters.' : err.message;
+      resultsBody.innerHTML = `<tr><td colspan="8" class="api-status error">${escapeHtml(msg)}</td></tr>`;
       resultsSummary.textContent = '';
     });
 }
 
 function rowHtml(r, index) {
   const title = r.title || '(No title)';
+  const titleSafe = escapeHtmlAllowMark(title);
   const titleLink = r.url
-    ? `<a href="${escapeHtml(r.url)}" target="_blank" rel="noopener">${escapeHtml(title)}</a>`
-    : escapeHtml(title);
-  const snippet = r.search_snippet ? `<div class="search-snippet">${r.search_snippet}</div>` : '';
+    ? `<a href="${escapeHtml(r.url)}" target="_blank" rel="noopener">${titleSafe}</a>`
+    : titleSafe;
+  const snippet = r.search_snippet ? `<div class="search-snippet">${escapeHtmlAllowMark(r.search_snippet)}</div>` : '';
   const urlCell = r.url ? `<a href="${escapeHtml(r.url)}" target="_blank" rel="noopener">Link</a>` : '—';
   return `<tr data-row-index="${index}">
     <td>${escapeHtml(r.country || '')}</td>
@@ -150,7 +161,7 @@ function attachExpandHandlers() {
       const idx = parseInt(row.dataset.rowIndex, 10);
       const r = currentResults[idx];
       if (!r) return;
-      textOverlayTitle.textContent = r.title || '(No title)';
+      textOverlayTitle.textContent = (r.title || '(No title)').replace(/<\/?mark>/gi, '');
       textOverlayMeta.textContent = [r.country, r.date, r.party].filter(Boolean).join(' · ');
       textOverlayBody.textContent = r.text || '(No content)';
       textOverlay.hidden = false;
@@ -181,6 +192,14 @@ function escapeHtml(s) {
   const div = document.createElement('div');
   div.textContent = s;
   return div.innerHTML;
+}
+
+/** Escape HTML but allow <mark> and </mark> so API search highlights render. */
+function escapeHtmlAllowMark(s) {
+  if (!s) return '';
+  const div = document.createElement('div');
+  div.textContent = s;
+  return div.innerHTML.replace(/&lt;\/?mark&gt;/gi, (m) => m.toLowerCase() === '&lt;mark&gt;' ? '<mark>' : '</mark>');
 }
 
 function toggleOptionalCols() {
@@ -226,7 +245,7 @@ downloadConfirm.addEventListener('click', () => {
   if (dateToInput.value) p.date_to = dateToInput.value;
   p.limit = DOWNLOAD_MAX;
   p.cols = cols.join(',');
-  window.location.href = SEARCH_API + '/download?' + new URLSearchParams(p);
+  window.location.href = appendToken(SEARCH_API + '/download?' + new URLSearchParams(p));
   downloadModal.hidden = true;
 });
 
@@ -235,8 +254,39 @@ textOverlay.addEventListener('click', (e) => { if (e.target === textOverlay) tex
 
 if (apiDocsLink) apiDocsLink.href = SEARCH_API + '/docs';
 
-// Initial load
-fetchList();
+// Load filters first, then run initial fetch so dropdowns are populated before user interacts
+function addLoadingOption(select) {
+  const opt = document.createElement('option');
+  opt.value = '';
+  opt.textContent = 'Loading…';
+  opt.disabled = true;
+  select.appendChild(opt);
+}
+
+[countrySelect, partySelect, issueSelect].forEach(s => { if (s.options.length === 1) addLoadingOption(s); });
+
+fetch(appendToken(SEARCH_API + '/filters'))
+  .then(r => r.json())
+  .then(data => {
+    [countrySelect, partySelect, issueSelect].forEach(s => {
+      const loading = s.querySelector('option[disabled]');
+      if (loading) loading.remove();
+    });
+    data.countries?.forEach(c => addOption(countrySelect, c, c));
+    data.parties?.slice(0, 300).forEach(p => addOption(partySelect, p, p));
+    data.issues?.forEach(i => addOption(issueSelect, i, i));
+  })
+  .catch(() => {
+    [countrySelect, partySelect, issueSelect].forEach(s => {
+      const loading = s.querySelector('option[disabled]');
+      if (loading) loading.textContent = 'Failed to load';
+    });
+  })
+  .finally(() => {
+    // Initial load only after filters are ready (or failed)
+    fetchList();
+  });
+
 </think>
 
 <｜tool▁calls▁begin｜><｜tool▁call▁begin｜>
